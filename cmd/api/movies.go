@@ -25,7 +25,7 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		Year:      2006,
 		Title:     "Borat! Cultural Learnings of America for Make Benefit Glorious Nation of Kazakhstan",
 		Runtime:   84,
-		Generes: []string{
+		Genres: []string{
 			"comedy",
 			"mockumentary",
 			"satire",
@@ -33,8 +33,9 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		Version: 1,
 	}
 
-	err = app.writeJSON(w, http.StatusOK, movie, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
 	if err != nil {
 		app.serverError(w, err)
 	}
 }
+

@@ -14,8 +14,17 @@ func (app *application) serverError(w http.ResponseWriter, err error) {
 	http.Error(w, "The server encountered an error and could not process your request", http.StatusInternalServerError)
 }
 
-func (app *application) writeJSON(w http.ResponseWriter, status int, data any, headers http.Header) error {
-	js, err := json.Marshal(data)
+type envelope map[string]any
+
+func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
+	var js []byte
+	var err error
+
+	if app.config.env == "development" {
+		js, err = json.MarshalIndent(data, "", "\t")
+	} else {
+		js, err = json.Marshal(data)
+	}
 	if err != nil {
 		return err
 	}
