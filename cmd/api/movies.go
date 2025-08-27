@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
+
+	"github.com/zakkbob/greenlight/internal/data"
 )
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
@@ -11,11 +14,27 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
-	if err != nil {
+	if err != nil || id != 1 {
 		http.NotFound(w, r)
 		return
 	}
 
-	fmt.Fprintf(w, "show the details of movie %d\n", id)
-}
+	movie := data.Movie{
+		ID:        1,
+		CreatedAt: time.Now(),
+		Year:      2006,
+		Title:     "Borat! Cultural Learnings of America for Make Benefit Glorious Nation of Kazakhstan",
+		Runtime:   84,
+		Generes: []string{
+			"comedy",
+			"mockumentary",
+			"satire",
+		},
+		Version: 1,
+	}
 
+	err = app.writeJSON(w, http.StatusOK, movie, nil)
+	if err != nil {
+		app.serverError(w, err)
+	}
+}
