@@ -9,11 +9,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (app *application) serverError(w http.ResponseWriter, err error) {
-	app.logger.Error(err.Error())
-	http.Error(w, "The server encountered an error and could not process your request", http.StatusInternalServerError)
-}
-
 type envelope map[string]any
 
 func (app *application) writeJSON(w http.ResponseWriter, status int, data envelope, headers http.Header) error {
