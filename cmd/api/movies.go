@@ -1,9 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/zakkbob/greenlight/internal/data"
 	"github.com/zakkbob/greenlight/internal/validator"
@@ -37,7 +37,7 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = app.models.Movie.Insert(movie)
+	err = app.models.Movies.Insert(movie)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -54,23 +54,16 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
-	if err != nil || id != 1 {
-		app.notFoundResponse(w, r)
-		return
-	}
 
-	movie := data.Movie{
-		ID:        1,
-		CreatedAt: time.Now(),
-		Year:      2006,
-		Title:     "Borat! Cultural Learnings of America for Make Benefit Glorious Nation of Kazakhstan",
-		Runtime:   84,
-		Genres: []string{
-			"comedy",
-			"mockumentary",
-			"satire",
-		},
-		Version: 1,
+	movie, err := app.models.Movies.Get(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
 	}
 
 	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
