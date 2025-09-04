@@ -3,7 +3,6 @@
 
 // WARNING: this is a bad system, X-Forwarded-For and X-Real-IP should only be used from
 // trusted proxies, clients can easily spoof these headers
-// INFO: I don't fully understand this code
 
 package realip
 
