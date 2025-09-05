@@ -15,16 +15,17 @@ import (
 )
 
 func (app *application) background(fn func()) {
-	go func() {
+	app.wg.Go(func() {
 		defer func() {
 			pv := recover()
 			if pv != nil {
 				app.logger.Error(fmt.Sprintf("background task panicked: %v", pv))
+
 			}
 		}()
 
 		fn()
-	}()
+	})
 }
 
 func (app *application) readString(qs url.Values, key string, defaultValue string) string {
