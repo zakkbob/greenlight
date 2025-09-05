@@ -5,6 +5,11 @@ import (
 	"net/http"
 )
 
+func (app *application) invalidCredentialsResponse(w http.ResponseWriter, r *http.Request) {
+	message := "invalid authentication credentials"
+	app.errorResponse(w, r, http.StatusUnauthorized, message)
+}
+
 func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
 	message := "too many requests"
 	app.errorResponse(w, r, http.StatusTooManyRequests, message)
