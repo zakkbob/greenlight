@@ -18,13 +18,24 @@ import (
 func (app *application) enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
+		w.Header().Add("Vary", "Access-Control-Request-Method")
 
 		origin := r.Header.Get("Origin")
 
-		if origin != "" {
-			if slices.Contains(app.config.cors.trustedOrigins, origin) {
-				w.Header().Set("Access-Control-Allow-Origin", origin)
-			}
+		if origin == "" || !slices.Contains(app.config.cors.trustedOrigins, origin) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+
+		isPreflight := r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != ""
+		if isPreflight {
+			w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT, PATCH, DELETE")
+			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+			w.WriteHeader(http.StatusOK)
+			return
 		}
 
 		next.ServeHTTP(w, r)
