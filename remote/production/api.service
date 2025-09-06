@@ -1,0 +1,23 @@
+[Unit]
+Description=Greenlight API service
+
+After=postgresql.service
+After=network-online.target
+Wants=network-online.target
+
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+[Service]
+Type=exec
+User=greenlight
+Group=greenlight
+EnvironmentFile=/etc/environment
+WorkingDirectory=/home/greenlight
+ExecStart=/home/greenlight/api -db-dsn=${GREENLIGHT_DB_DSN} -smtp-host=${GREENLIGHT_SMTP_HOST} -smtp-sender=${GREENLIGHT_SMTP_SENDER} -smtp-username=${GREENLIGHT_SMTP_USERNAME} -smtp-password=${GREENLIGHT_SMTP_PASSWORD} -port=4000 -env=production
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
