@@ -54,6 +54,10 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
 
 	movie, err := app.models.Movies.Get(id)
 	if err != nil {
