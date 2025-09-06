@@ -99,3 +99,10 @@ build/api:
 .PHONY: production/connect
 production/connect:
 	ssh greenlight@${PRODUCTION_HOST_IP}
+
+## production/deploy/api: deploy the api to production
+.PHONY: production/deploy/api
+production/deploy/api:
+	rsync -P ./bin/linux_amd64/api greenlight@${PRODUCTION_HOST_IP}:~
+	rsync -rP --delete ./migrations greenlight@${PRODUCTION_HOST_IP}:~
+	ssh -t greenlight@${PRODUCTION_HOST_IP} 'migrate -path ~/migrations -database $$GREENLIGHT_DB_DSN up'
