@@ -1,3 +1,5 @@
+include .envrc
+
 ## help: print this help message
 .PHONY: help
 help:
@@ -11,7 +13,14 @@ confirm:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	go run ./cmd/api
+	@echo "go run ./cmd/api -db-dsn=*** -smtp-host=*** -smtp-sender=*** -smtp-username=*** -smtp-password=***"
+	@go run ./cmd/api -db-dsn=${GREENLIGHT_DB_DSN} -smtp-host=${GREENLIGHT_SMTP_HOST} -smtp-sender=${GREENLIGHT_SMTP_SENDER} -smtp-username=${GREENLIGHT_SMTP_USERNAME} -smtp-password=${GREENLIGHT_SMTP_PASSWORD} 
+
+
+## run/api/help: show help info for cmd/api application
+.PHONY: run/api/help
+run/api/help:
+	go run ./cmd/api -help
 
 ## db/psql: connect to the database using psql
 .PHONY: db/psql
