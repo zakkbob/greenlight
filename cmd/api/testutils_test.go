@@ -17,9 +17,26 @@ type testResponse struct {
 	header http.Header
 }
 
-func newTestApplication(t *testing.T) application {
-	t.Helper()
+func newTestConfig(t *testing.T) config {
+	return config{
+		port: 4000,
+		env:  "production",
+		limiter: struct {
+			rps     float64
+			burst   int
+			enabled bool
+		}{
+			rps:     1,
+			burst:   5,
+			enabled: true,
+		},
+		metrics: false,
+	}
+}
+
+func newTestApplication(t *testing.T, cfg config) application {
 	return application{
+		config: cfg,
 		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
 		wg:     sync.WaitGroup{},
 	}
@@ -30,7 +47,6 @@ type testServer struct {
 }
 
 func newTestServer(t *testing.T, h http.Handler) testServer {
-	t.Helper()
 	return testServer{
 		server: httptest.NewServer(h),
 	}

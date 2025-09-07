@@ -53,6 +53,10 @@ func (mw *metricsResponseWriter) Unwrap() http.ResponseWriter {
 }
 
 func (app *application) metrics(next http.Handler) http.Handler {
+	if !app.config.metrics {
+		return next
+	}
+
 	var (
 		totalRequestsReceived           = expvar.NewInt("total_requests_received")
 		totalResponsesSent              = expvar.NewInt("total_responses_sent")

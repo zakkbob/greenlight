@@ -8,7 +8,8 @@ import (
 )
 
 func TestHealthCheck(t *testing.T) {
-	app := newTestApplication(t)
+	cfg := newTestConfig(t)
+	app := newTestApplication(t, cfg)
 	ts := newTestServer(t, app.routes())
 	defer ts.close()
 
