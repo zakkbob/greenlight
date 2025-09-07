@@ -95,6 +95,12 @@ build/api:
 # PRODUCTION
 # ==================================================================================== #
 
+## production/setup: setup production server
+.PHONY: production/setup
+production/setup:
+	 rsync -rP --delete ./remote/setup root@${PRODUCTION_HOST_IP}:/root
+	 ssh -t root@${PRODUCTION_HOST_IP} "bash /root/setup/01.sh"
+
 ## production/connect: connect to the production server
 .PHONY: production/connect
 production/connect:

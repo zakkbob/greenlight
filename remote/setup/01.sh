@@ -12,9 +12,13 @@ TIMEZONE=Europe/London
 # Set the name of the new user to create.
 USERNAME=greenlight
 
-# Prompt to enter a password for the PostgreSQL greenlight user (rather than hard-coding
-# a password in this script).
 read -p "Enter password for greenlight DB user: " DB_PASSWORD
+
+read -p "Enter SMTP host: " SMTP_HOST
+read -p "Enter SMTP username: " SMTP_USERNAME
+read -p "Enter SMTP password: " SMTP_PASSWORD
+read -p "Enter SMTP sender: " SMTP_SENDER
+read -p "Enter SMTP port: " SMTP_PORT
 
 # Force all output to be presented in en_US for the duration of this script. This avoids  
 # any "setting locale failed" errors while this script is running, before we have 
@@ -66,9 +70,13 @@ sudo -i -u postgres psql -c "CREATE DATABASE greenlight"
 sudo -i -u postgres psql -d greenlight -c "CREATE EXTENSION IF NOT EXISTS citext"
 sudo -i -u postgres psql -d greenlight -c "CREATE ROLE greenlight WITH LOGIN PASSWORD '${DB_PASSWORD}'"
 
-# Add a DSN for connecting to the greenlight database to the system-wide environment 
-# variables in the /etc/environment file.
+# Add system-wide environment variables in the /etc/environment file.
 echo "GREENLIGHT_DB_DSN='postgres://greenlight:${DB_PASSWORD}@localhost/greenlight'" >> /etc/environment
+echo "GREENLIGHT_SMTP_HOST='${SMTP_HOST}'" >> /etc/environment
+echo "GREENLIGHT_SMTP_USERNAME='${SMTP_USERNAME}'" >> /etc/environment
+echo "GREENLIGHT_SMTP_PASSWORD='${SMTP_PASSWORD}'" >> /etc/environment
+echo "GREENLIGHT_SMTP_SENDER='${SMTP_SENDER}'" >> /etc/environment
+echo "GREENLIGHT_SMTP_PORT='${SMTP_PORT}'" >> /etc/environment
 
 # Install Caddy (see https://caddyserver.com/docs/install#debian-ubuntu-raspbian).
 apt --yes install debian-keyring debian-archive-keyring apt-transport-https
