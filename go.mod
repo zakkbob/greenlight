@@ -3,6 +3,7 @@ module github.com/zakkbob/greenlight
 go 1.25.1
 
 require (
+	github.com/golang-migrate/migrate/v4 v4.19.0
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/lib/pq v1.10.9
 	github.com/wneessen/go-mail v0.6.2
@@ -12,6 +13,8 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20231108232855-2478ac86f678 // indirect
 	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
