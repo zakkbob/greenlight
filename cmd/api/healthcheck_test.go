@@ -8,8 +8,8 @@ import (
 )
 
 func TestHealthCheck(t *testing.T) {
-	cfg := newTestConfig(t)
-	app := newTestApplication(t, cfg)
+	app := newTestApplication(t)
+	app.config = newTestConfig(t)
 	ts := newTestServer(t, app.routes())
 	defer ts.close()
 
@@ -21,7 +21,8 @@ func TestHealthCheck(t *testing.T) {
 		} `json:"system_info"`
 	}
 
-	res := ts.getJSON(t, "/v1/healthcheck", &js)
+	res := ts.get(t, "/v1/healthcheck")
+	res.Decode(t, &js)
 
 	expectedVary := []string{"Access-Control-Request-Method", "Authorization", "Origin"}
 	assert.EqualSlicesUnordered(t, res.header.Values("Vary"), expectedVary)
