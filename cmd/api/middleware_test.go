@@ -56,23 +56,58 @@ func TestUserPermissions(t *testing.T) {
 	tests := []struct {
 		name          string
 		permissions   data.Permissions
+		activated     bool
 		authenticated bool
 		path          string
 		status        int
 	}{
 		{
-			name:          "no permissions required",
+			name:          "No auth required or given",
 			path:          "/v1/healthcheck",
+			activated:     false,
 			authenticated: false,
 			permissions:   data.Permissions{},
 			status:        http.StatusOK,
 		},
 		{
-			name:          "Authentication required",
+			name:          "Auth required but not given",
 			path:          "/v1/movies",
+			activated:     false,
 			authenticated: false,
 			permissions:   data.Permissions{},
 			status:        http.StatusUnauthorized,
+		},
+		{
+			name:          "Doesn't have permission",
+			path:          "/v1/movies",
+			activated:     true,
+			authenticated: true,
+			permissions:   data.Permissions{},
+			status:        http.StatusForbidden,
+		},
+		{
+			name:          "Has permission",
+			path:          "/v1/movies",
+			activated:     true,
+			authenticated: true,
+			permissions:   data.Permissions{"movies:read"},
+			status:        http.StatusOK,
+		},
+		{
+			name:          "Wrong permission",
+			path:          "/v1/movies",
+			activated:     true,
+			authenticated: true,
+			permissions:   data.Permissions{"debug:read"},
+			status:        http.StatusForbidden,
+		},
+		{
+			name:          "Account not activated",
+			path:          "/v1/movies",
+			activated:     false,
+			authenticated: true,
+			permissions:   data.Permissions{"movies:read"},
+			status:        http.StatusForbidden,
 		},
 	}
 
@@ -87,8 +122,9 @@ func TestUserPermissions(t *testing.T) {
 
 			if tt.authenticated {
 				user := &data.User{
-					Name:  "John",
-					Email: "john@example.com",
+					Name:      "John",
+					Email:     "john@example.com",
+					Activated: tt.activated,
 				}
 				user.Password.Set("pa55word")
 				err := app.models.Users.Insert(user)
@@ -106,10 +142,11 @@ func TestUserPermissions(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				header.Set("Authorization", " Bearer "+token.Plaintext)
+				header.Set("Authorization", "Bearer "+token.Plaintext)
 			}
 
 			res := ts.get(t, tt.path, header)
+			t.Log(res.body)
 			assert.Equal(t, res.status, tt.status)
 		})
 	}
