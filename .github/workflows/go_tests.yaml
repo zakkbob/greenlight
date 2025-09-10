@@ -1,0 +1,41 @@
+name: Go Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: test_greenlight
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: test_greenlight
+        options: >-
+          --health-cmd="pg_isready -U test_greenlight -d test_greenlight"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Wait for Postgres
+        run: |
+          until pg_isready -h localhost -p 5432 -U test_greenlight; do
+            sleep 1
+          done
+
+      - name: Run tests
+        run: go test ./...
