@@ -21,7 +21,7 @@ func TestHealthCheck(t *testing.T) {
 		} `json:"system_info"`
 	}
 
-	res := ts.get(t, "/v1/healthcheck")
+	res := ts.get(t, "/v1/healthcheck", nil)
 	res.Decode(t, &js)
 
 	expectedVary := []string{"Access-Control-Request-Method", "Authorization", "Origin"}

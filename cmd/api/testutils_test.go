@@ -80,7 +80,7 @@ func (ts *testServer) close() {
 	ts.server.Close()
 }
 
-func processResponse(t *testing.T, res *http.Response) testResponse {
+func newTestResponse(t *testing.T, res *http.Response) testResponse {
 	body, err := io.ReadAll(res.Body)
 	res.Body.Close()
 	if err != nil {
@@ -94,16 +94,23 @@ func processResponse(t *testing.T, res *http.Response) testResponse {
 	}
 }
 
-func (ts *testServer) get(t *testing.T, path string) testResponse {
-	res, err := http.Get(ts.server.URL + path)
+func (ts *testServer) get(t *testing.T, path string, header http.Header) testResponse {
+	req, err := http.NewRequest("GET", ts.server.URL+path, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	return processResponse(t, res)
+	req.Header = header
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return newTestResponse(t, res)
 }
 
-func (ts *testServer) post(t *testing.T, path string, data any) testResponse {
+func (ts *testServer) post(t *testing.T, path string, header http.Header, data any) testResponse {
 	body, err := json.Marshal(data)
 	if err != nil {
 		t.Fatalf("Failed to encode JSON data '%v': %v", data, err)
@@ -114,7 +121,7 @@ func (ts *testServer) post(t *testing.T, path string, data any) testResponse {
 		t.Fatal(err)
 	}
 
-	return processResponse(t, res)
+	return newTestResponse(t, res)
 }
 
 func newTestDB(t *testing.T) *sql.DB {
