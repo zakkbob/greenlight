@@ -1495,10 +1495,12 @@ func (m *Msg) GetSender(useFullAddr bool) (string, error) {
 			return "", ErrNoFromAddress
 		}
 	}
-	if useFullAddr {
-		return from[0].String(), nil
+
+	addr := *from[0]
+	if !useFullAddr {
+		return mailAddressStringWithoutName(addr), nil
 	}
-	return from[0].Address, nil
+	return addr.String(), nil
 }
 
 // GetRecipients returns a list of the currently set "TO", "CC", and "BCC" addresses for the Msg.
@@ -1522,7 +1524,7 @@ func (m *Msg) GetRecipients() ([]string, error) {
 			continue
 		}
 		for _, r := range addresses {
-			rcpts = append(rcpts, r.Address)
+			rcpts = append(rcpts, mailAddressStringWithoutName(*r))
 		}
 	}
 	if len(rcpts) <= 0 {
@@ -3323,4 +3325,9 @@ func writeFuncFromBuffer(buffer *bytes.Buffer) func(io.Writer) (int64, error) {
 		return int64(numBytes), err
 	}
 	return writeFunc
+}
+
+func mailAddressStringWithoutName(addr mail.Address) string {
+	addr.Name = ""
+	return addr.String()
 }
